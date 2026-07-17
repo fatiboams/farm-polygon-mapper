@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Interactive farm and land polygon editor." />
+  <title>Farm Polygon Mapper</title>
+  <link rel="stylesheet" href="src/styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div>
+      <p class="eyebrow">Open-source land editor</p>
+      <h1>Farm Polygon Mapper</h1>
+      <p>Drag boundary points, rotate, zoom, fit the polygon, and import or export JSON.</p>
+    </div>
+  </header>
+
+  <main class="app-shell">
+    <section class="toolbar" aria-label="Polygon controls">
+      <button id="zoomOut" type="button">− Zoom</button>
+      <button id="zoomIn" type="button">+ Zoom</button>
+      <button id="rotateLeft" type="button">↺ Rotate</button>
+      <button id="rotateRight" type="button">↻ Rotate</button>
+      <button id="fitView" type="button">Fit view</button>
+      <button id="resetPolygon" type="button">Reset</button>
+      <button id="exportJson" type="button">Export JSON</button>
+      <button id="importJson" type="button">Import JSON</button>
+      <input id="jsonFile" type="file" accept="application/json,.json" hidden />
+    </section>
+
+    <section class="workspace">
+      <div class="viewer-card">
+        <div class="viewer-heading">
+          <div>
+            <h2>Farm boundary</h2>
+            <p>Drag any numbered point to reshape the land.</p>
+          </div>
+          <output id="statusText" aria-live="polite">Zoom 100% · Rotation 0°</output>
+        </div>
+
+        <div id="viewer" class="viewer" tabindex="0" aria-label="Interactive farm polygon viewer">
+          <svg id="polygonSvg" viewBox="0 0 1000 700" role="img" aria-label="Editable irregular farm polygon">
+            <g id="transformLayer">
+              <polygon id="farmPolygon"></polygon>
+              <g id="handlesLayer"></g>
+            </g>
+          </svg>
+        </div>
+      </div>
+
+      <aside class="info-card">
+        <h2>Version 1</h2>
+        <dl>
+          <div><dt>Boundary points</dt><dd id="pointCount">0</dd></div>
+          <div><dt>Approximate area</dt><dd id="areaValue">0 units²</dd></div>
+          <div><dt>Zoom</dt><dd id="zoomValue">100%</dd></div>
+          <div><dt>Rotation</dt><dd id="rotationValue">0°</dd></div>
+        </dl>
+        <p class="tip">This demo stores no data online. Export JSON to save the current polygon locally.</p>
+      </aside>
+    </section>
+  </main>
+
+  <footer><p>Farm Polygon Mapper · MIT licensed</p></footer>
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
