@@ -1,0 +1,116 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #17211a;
+  background: #f3f7f2;
+  font-synthesis: none;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+button, input { font: inherit; }
+
+.app-header {
+  padding: 2rem max(1.25rem, calc((100vw - 1180px) / 2));
+  background: linear-gradient(135deg, #173d2a, #2b6645);
+  color: white;
+}
+
+.app-header h1 { margin: 0.25rem 0 0.5rem; font-size: clamp(2rem, 5vw, 3.5rem); }
+.app-header p { margin: 0; max-width: 760px; line-height: 1.6; }
+.eyebrow { text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.75rem; opacity: 0.75; }
+
+.app-shell { width: min(1180px, calc(100% - 2rem)); margin: 1.5rem auto; }
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.toolbar button {
+  border: 1px solid #b9c9bd;
+  background: white;
+  color: #173d2a;
+  padding: 0.7rem 0.95rem;
+  border-radius: 0.7rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.toolbar button:hover, .toolbar button:focus-visible {
+  background: #e6f1e8;
+  outline: 3px solid rgba(43, 102, 69, 0.2);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 1rem;
+}
+
+.viewer-card, .info-card {
+  background: white;
+  border: 1px solid #dbe5dc;
+  border-radius: 1rem;
+  box-shadow: 0 10px 30px rgba(24, 58, 39, 0.08);
+}
+
+.viewer-card { padding: 1rem; }
+.viewer-heading { display: flex; justify-content: space-between; gap: 1rem; align-items: start; }
+.viewer-heading h2, .info-card h2 { margin: 0; }
+.viewer-heading p { margin: 0.25rem 0 1rem; color: #5e6f63; }
+#statusText { white-space: nowrap; color: #486150; font-weight: 700; }
+
+.viewer {
+  min-height: 540px;
+  border-radius: 0.8rem;
+  overflow: hidden;
+  background:
+    linear-gradient(rgba(29, 77, 49, 0.07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29, 77, 49, 0.07) 1px, transparent 1px),
+    #f8fbf8;
+  background-size: 35px 35px;
+  border: 1px solid #d6e2d8;
+  touch-action: none;
+}
+
+#polygonSvg { width: 100%; height: 540px; display: block; }
+#farmPolygon { fill: rgba(75, 148, 91, 0.38); stroke: #24653d; stroke-width: 5; vector-effect: non-scaling-stroke; }
+
+.handle circle {
+  fill: white;
+  stroke: #173d2a;
+  stroke-width: 4;
+  vector-effect: non-scaling-stroke;
+  cursor: grab;
+}
+
+.handle circle:active { cursor: grabbing; }
+.handle text { font-size: 22px; font-weight: 800; text-anchor: middle; dominant-baseline: central; pointer-events: none; }
+
+.info-card { padding: 1rem; }
+.info-card dl { margin: 1rem 0; }
+.info-card dl div { display: flex; justify-content: space-between; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid #e7eee8; }
+.info-card dt { color: #617066; }
+.info-card dd { margin: 0; font-weight: 800; text-align: right; }
+.tip { padding: 0.9rem; background: #edf5ee; border-radius: 0.7rem; color: #43584a; line-height: 1.5; }
+
+footer { text-align: center; color: #66736a; padding: 1rem; }
+
+@media (max-width: 850px) {
+  .workspace { grid-template-columns: 1fr; }
+  .viewer-heading { flex-direction: column; }
+  #polygonSvg, .viewer { min-height: 430px; height: 430px; }
+}
+
+@media (max-width: 520px) {
+  .app-shell { width: min(100% - 1rem, 1180px); }
+  .toolbar button { flex: 1 1 calc(50% - 0.65rem); }
+  #polygonSvg, .viewer { min-height: 360px; height: 360px; }
+}
