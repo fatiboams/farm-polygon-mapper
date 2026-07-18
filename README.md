@@ -1,121 +1,138 @@
 # Farm Polygon Mapper
 
-A lightweight, browser-based editor for reshaping, rotating, zooming and exporting irregular farm or land polygons.
+A lightweight, local-first browser editor for creating and reshaping irregular farm or land polygons.
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-Open_Mapper-166534?style=for-the-badge)](https://fatiboams.github.io/farm-polygon-mapper/)
+[![Version](https://img.shields.io/badge/Version-1.1.0-28744c?style=for-the-badge)](RELEASE_NOTES_v1.1.0.md)
 [![License: MIT](https://img.shields.io/badge/License-MIT-0f172a?style=for-the-badge)](LICENSE)
-[![Built with HTML, CSS and JavaScript](https://img.shields.io/badge/Built_with-HTML%20%7C%20CSS%20%7C%20JavaScript-15803d?style=for-the-badge)](#technology)
 
 ![Farm Polygon Mapper application preview](docs/farm-polygon-mapper-preview.png)
 
-## Overview
+## Version 1.1 highlights
 
-Farm Polygon Mapper provides a simple visual interface for working with irregular farm and land boundaries. Users can drag numbered boundary points, rotate and zoom the polygon, fit it to the viewer, review an approximate area, and save or restore the current shape using JSON.
+- Add a new boundary point by selecting **Add point** and clicking an edge
+- Delete the currently selected point
+- Undo and redo editing actions
+- Zoom at the mouse pointer using the wheel
+- Pan the viewer by dragging the canvas
+- Improved rotation-aware fit-to-view
+- Stronger JSON validation
+- Keyboard shortcuts
+- Geometry unit tests
 
 ## Features
 
-- Interactive irregular polygon editor
+- Interactive SVG polygon editor
 - Draggable numbered boundary points
-- Zoom in and zoom out
+- Add and delete points
+- Minimum three-point safety rule
+- Undo and redo history
+- Mouse-wheel zoom at pointer position
+- Zoom buttons
+- Canvas panning
 - Clockwise and counter-clockwise rotation
-- Fit polygon to the available viewer
-- Reset to the default polygon
+- Rotation-aware fit-to-view
+- Center selected point
 - Approximate polygon-area calculation
 - Boundary-point count
-- Current zoom and rotation indicators
-- JSON export
-- JSON import
+- Selected-point indicator
+- JSON import and export
+- Self-intersection protection
+- Duplicate-point validation
 - Responsive browser layout
-- No account, database or backend required
+- No account, database or backend
 
 ## Live demo
 
-Open the hosted application:
-
 **https://fatiboams.github.io/farm-polygon-mapper/**
 
-## How it works
+## Usage
 
-1. Drag any numbered point to reshape the boundary.
-2. Use the zoom and rotation controls to inspect the polygon.
-3. Select **Fit view** to return the polygon to a clear viewing position.
-4. Review the point count and approximate area.
-5. Export the polygon as JSON to save it locally.
-6. Import a compatible JSON file to restore the saved shape.
+1. Drag a numbered point to reshape the polygon.
+2. Select **Add point**, then click a highlighted edge.
+3. Select a point and use **Delete point** or press `Delete`.
+4. Drag the empty canvas to pan.
+5. Use the mouse wheel to zoom around the pointer.
+6. Export JSON to save the polygon locally.
+7. Import the JSON file to restore it.
 
-## Data and privacy
+## Keyboard shortcuts
 
-The application has no backend and does not intentionally upload polygon data to a server.
+| Shortcut | Action |
+|---|---|
+| `Ctrl + Z` | Undo |
+| `Ctrl + Y` or `Ctrl + Shift + Z` | Redo |
+| `Delete` or `Backspace` | Delete selected point |
+| `Escape` | Clear selection and exit add-point mode |
 
-Exported JSON files are created locally in the browser. Imported JSON files are read locally and used to rebuild the polygon.
+## JSON validation
 
-## Run locally
+Imported files are rejected when they contain:
 
-1. Download or clone this repository.
-2. Open `index.html` in a modern browser.
-3. Drag the polygon points or use the controls.
+- Fewer than three or more than 200 points
+- Missing, non-numeric or non-finite coordinates
+- Consecutive duplicate points
+- Zero polygon area
+- Self-intersecting edges
+- Invalid zoom, rotation or pan values
+- Files larger than 200 KB
 
-No package installation or build command is required.
+The mapper uses local editor units. It is not a certified surveying or GIS measurement tool.
 
 ## Project structure
 
 ```text
 farm-polygon-mapper/
-├── src/
-│   ├── app.js
-│   └── styles.css
 ├── docs/
 │   └── farm-polygon-mapper-preview.png
+├── src/
+│   ├── app.js
+│   ├── geometry.js
+│   └── styles.css
+├── tests/
+│   └── geometry.test.mjs
 ├── index.html
-├── .gitignore
+├── package.json
+├── RELEASE_NOTES_v1.1.0.md
 ├── LICENSE
 └── README.md
 ```
 
-## JSON format
+## Run locally
 
-A typical export contains the application version, rotation, zoom and polygon points:
+Open `index.html` in a modern browser.
 
-```json
-{
-  "version": 1,
-  "rotation": 0,
-  "zoom": 1,
-  "points": [
-    { "x": 190, "y": 150 },
-    { "x": 650, "y": 100 }
-  ]
-}
+Because the app uses JavaScript modules, some browsers may require a local static server:
+
+```bash
+python -m http.server 8000
 ```
 
-At least three valid points are required when importing a polygon.
+Then open `http://localhost:8000`.
 
-## Technology
+## Tests
 
-- Semantic HTML
-- Responsive CSS
-- Vanilla JavaScript
-- SVG
-- Pointer Events API
-- File and Blob APIs
-- GitHub Pages
+```bash
+npm test
+npm run check
+```
+
+The tests cover polygon area, segment projection, self-intersection detection, duplicate-point rejection, import normalization and rotation normalization.
+
+## Privacy
+
+The project has no backend or tracking code. Polygon data remains in the browser unless the user exports it to a local JSON file.
 
 ## Roadmap
 
-- [ ] Add new boundary points
-- [ ] Delete selected boundary points
-- [ ] Add undo and redo
-- [ ] Add mouse-wheel zoom and panning
-- [ ] Improve automatic fit-to-view
-- [ ] Export GeoJSON
-- [ ] Export SVG
-- [ ] Add grid snapping
-- [ ] Add perimeter measurement
-- [ ] Add automated browser tests
-
-## Contributing
-
-Bug reports, feature suggestions and pull requests are welcome. Avoid including confidential land records, ownership information or precise private coordinates in public issues.
+- [ ] GeoJSON export
+- [ ] SVG export
+- [ ] Grid snapping
+- [ ] Perimeter measurement
+- [ ] Named projects
+- [ ] Optional local autosave
+- [ ] Accessible arrow-key point movement
+- [ ] Browser interaction tests
 
 ## License
 

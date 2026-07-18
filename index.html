@@ -3,66 +3,205 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Interactive farm and land polygon editor." />
+  <meta
+    name="description"
+    content="An interactive browser editor for reshaping, rotating, zooming, panning and exporting irregular farm or land polygons."
+  />
+  <meta name="theme-color" content="#174f35" />
   <title>Farm Polygon Mapper</title>
   <link rel="stylesheet" href="src/styles.css" />
+  <script type="module" src="src/app.js"></script>
 </head>
 <body>
-  <header class="app-header">
-    <div>
-      <p class="eyebrow">Open-source land editor</p>
-      <h1>Farm Polygon Mapper</h1>
-      <p>Drag boundary points, rotate, zoom, fit the polygon, and import or export JSON.</p>
+  <header class="hero">
+    <div class="container hero-inner">
+      <div>
+        <p class="eyebrow">Open-source land editor</p>
+        <h1>Farm Polygon Mapper</h1>
+        <p class="hero-copy">
+          Add, remove and drag boundary points. Pan, rotate, zoom, fit the polygon,
+          and import or export validated JSON.
+        </p>
+      </div>
+      <div class="version-pill">
+        <span>Version</span>
+        <strong>1.1</strong>
+      </div>
     </div>
   </header>
 
-  <main class="app-shell">
-    <section class="toolbar" aria-label="Polygon controls">
-      <button id="zoomOut" type="button">− Zoom</button>
-      <button id="zoomIn" type="button">+ Zoom</button>
-      <button id="rotateLeft" type="button">↺ Rotate</button>
-      <button id="rotateRight" type="button">↻ Rotate</button>
-      <button id="fitView" type="button">Fit view</button>
-      <button id="resetPolygon" type="button">Reset</button>
-      <button id="exportJson" type="button">Export JSON</button>
-      <button id="importJson" type="button">Import JSON</button>
-      <input id="jsonFile" type="file" accept="application/json,.json" hidden />
+  <main class="container app-shell">
+    <section class="toolbar" aria-label="Polygon editing controls">
+      <div class="toolbar-group">
+        <button id="undoButton" class="tool-button" type="button" title="Undo (Ctrl+Z)" disabled>
+          ↶ <span>Undo</span>
+        </button>
+        <button id="redoButton" class="tool-button" type="button" title="Redo (Ctrl+Y)" disabled>
+          ↷ <span>Redo</span>
+        </button>
+      </div>
+
+      <div class="toolbar-group">
+        <button id="addPointButton" class="tool-button tool-button-accent" type="button" aria-pressed="false">
+          ＋ <span>Add point</span>
+        </button>
+        <button id="deletePointButton" class="tool-button tool-button-danger" type="button" disabled>
+          − <span>Delete point</span>
+        </button>
+      </div>
+
+      <div class="toolbar-group">
+        <button id="zoomOutButton" class="tool-button" type="button">− <span>Zoom</span></button>
+        <button id="zoomInButton" class="tool-button" type="button">＋ <span>Zoom</span></button>
+        <button id="rotateLeftButton" class="tool-button" type="button">↶ <span>Rotate</span></button>
+        <button id="rotateRightButton" class="tool-button" type="button">↷ <span>Rotate</span></button>
+      </div>
+
+      <div class="toolbar-group">
+        <button id="fitButton" class="tool-button" type="button">Fit view</button>
+        <button id="resetButton" class="tool-button" type="button">Reset</button>
+      </div>
+
+      <div class="toolbar-group toolbar-group-push">
+        <button id="exportButton" class="tool-button" type="button">Export JSON</button>
+        <button id="importButton" class="tool-button" type="button">Import JSON</button>
+        <input id="importFile" type="file" accept="application/json,.json" hidden />
+      </div>
     </section>
 
     <section class="workspace">
-      <div class="viewer-card">
-        <div class="viewer-heading">
+      <article class="editor-card">
+        <div class="card-heading">
           <div>
+            <p class="section-kicker">Interactive editor</p>
             <h2>Farm boundary</h2>
-            <p>Drag any numbered point to reshape the land.</p>
+            <p id="editorHint">
+              Drag a numbered point to reshape the land. Drag the canvas to pan.
+            </p>
           </div>
-          <output id="statusText" aria-live="polite">Zoom 100% · Rotation 0°</output>
+          <div class="view-readout">
+            <span>Zoom <strong id="zoomReadout">100%</strong></span>
+            <span>Rotation <strong id="rotationReadout">0°</strong></span>
+          </div>
         </div>
 
-        <div id="viewer" class="viewer" tabindex="0" aria-label="Interactive farm polygon viewer">
-          <svg id="polygonSvg" viewBox="0 0 1000 700" role="img" aria-label="Editable irregular farm polygon">
-            <g id="transformLayer">
-              <polygon id="farmPolygon"></polygon>
-              <g id="handlesLayer"></g>
+        <div
+          id="svgFrame"
+          class="svg-frame"
+          tabindex="0"
+          aria-label="Interactive polygon editor. Use pointer controls or keyboard shortcuts."
+        >
+          <svg
+            id="editorSvg"
+            viewBox="0 0 1000 650"
+            role="img"
+            aria-labelledby="editorTitle editorDescription"
+          >
+            <title id="editorTitle">Editable farm polygon</title>
+            <desc id="editorDescription">
+              A polygon with draggable numbered boundary points. The canvas can be panned and zoomed.
+            </desc>
+
+            <defs>
+              <pattern id="minorGrid" width="25" height="25" patternUnits="userSpaceOnUse">
+                <path d="M 25 0 L 0 0 0 25" class="grid-minor" fill="none" />
+              </pattern>
+              <pattern id="majorGrid" width="100" height="100" patternUnits="userSpaceOnUse">
+                <rect width="100" height="100" fill="url(#minorGrid)" />
+                <path d="M 100 0 L 0 0 0 100" class="grid-major" fill="none" />
+              </pattern>
+            </defs>
+
+            <rect class="canvas-background" width="1000" height="650" fill="url(#majorGrid)" />
+
+            <g id="polygonTransform">
+              <polygon id="polygonShape" class="polygon-shape" points="" />
+              <g id="edgeLayer" aria-hidden="true"></g>
+              <g id="pointLayer"></g>
             </g>
           </svg>
-        </div>
-      </div>
 
-      <aside class="info-card">
-        <h2>Version 1</h2>
-        <dl>
-          <div><dt>Boundary points</dt><dd id="pointCount">0</dd></div>
-          <div><dt>Approximate area</dt><dd id="areaValue">0 units²</dd></div>
-          <div><dt>Zoom</dt><dd id="zoomValue">100%</dd></div>
-          <div><dt>Rotation</dt><dd id="rotationValue">0°</dd></div>
+          <div id="modeBadge" class="mode-badge" hidden>
+            Add-point mode: click a highlighted edge
+          </div>
+
+          <div id="selectionBadge" class="selection-badge" hidden></div>
+        </div>
+
+        <div class="editor-footer">
+          <span>Mouse wheel: zoom at pointer</span>
+          <span>Drag canvas: pan</span>
+          <span>Ctrl+Z / Ctrl+Y: undo / redo</span>
+          <span>Delete: remove selected point</span>
+        </div>
+      </article>
+
+      <aside class="summary-card">
+        <div class="summary-heading">
+          <div>
+            <p class="section-kicker">Polygon status</p>
+            <h2>Version 1.1</h2>
+          </div>
+          <span id="validityBadge" class="validity-badge valid">Valid</span>
+        </div>
+
+        <dl class="stats-list">
+          <div>
+            <dt>Boundary points</dt>
+            <dd id="pointCount">6</dd>
+          </div>
+          <div>
+            <dt>Approximate area</dt>
+            <dd><span id="areaReadout">0</span> units²</dd>
+          </div>
+          <div>
+            <dt>Selected point</dt>
+            <dd id="selectedReadout">None</dd>
+          </div>
+          <div>
+            <dt>Zoom</dt>
+            <dd id="zoomStat">100%</dd>
+          </div>
+          <div>
+            <dt>Rotation</dt>
+            <dd id="rotationStat">0°</dd>
+          </div>
+          <div>
+            <dt>History</dt>
+            <dd id="historyStat">1 state</dd>
+          </div>
         </dl>
-        <p class="tip">This demo stores no data online. Export JSON to save the current polygon locally.</p>
+
+        <div class="instruction-card">
+          <strong>Adding points</strong>
+          <p>
+            Select <b>Add point</b>, then click any highlighted polygon edge.
+            The new point is inserted exactly on that edge.
+          </p>
+        </div>
+
+        <div class="instruction-card">
+          <strong>Local-first data</strong>
+          <p>
+            This demo stores no polygon data online. Export JSON to save your
+            work locally.
+          </p>
+        </div>
+
+        <button id="centerSelectedButton" class="wide-button" type="button" disabled>
+          Center selected point
+        </button>
       </aside>
     </section>
   </main>
 
-  <footer><p>Farm Polygon Mapper · MIT licensed</p></footer>
-  <script type="module" src="src/app.js"></script>
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <span>Farm Polygon Mapper · MIT licensed</span>
+      <span>No account · No backend · No tracking</span>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 </body>
 </html>
